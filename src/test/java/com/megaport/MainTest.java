@@ -1,6 +1,8 @@
 package com.megaport;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -46,7 +48,7 @@ public class MainTest {
     @Test
     public void throwExceptionIfInputFileCantBeRead(@TempDir Path tempDir) {
         Exception exception = assertThrows(Exception.class, () -> Main.main(new String[]{tempDir.resolve("not-exist.txt").toAbsolutePath().toString()}));
-        Assertions.assertTrue(exception.getMessage().contains("Can't read file"));
+        MatcherAssert.assertThat(exception.getMessage(), CoreMatchers.containsString("Can't read file"));
     }
 
     // https://github.com/junit-team/junit5/issues/2256

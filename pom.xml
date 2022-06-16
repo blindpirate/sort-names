@@ -80,7 +80,7 @@
                     <programs>
                         <program>
                             <mainClass>com.megaport.Main</mainClass>
-                            <name>sort-names</name>
+                            <id>sort-names</id>
                         </program>
                     </programs>
                 </configuration>

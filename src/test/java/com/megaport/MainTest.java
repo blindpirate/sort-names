@@ -30,36 +30,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MainTest {
-    @ParameterizedTest
-    @CsvSource({
-        "/test1/input1.txt,     /test1/output.txt",
-        "/test1/recoverable-input2.txt, /test1/output.txt",
-        "/test1/input3.txt,     /test1/output.txt",
-        "/test1/input4.txt,     /test1/output.txt"
-    })
-    public void canSortNames(String input, String output, @TempDir Path tempDir) throws IOException {
+    @Test
+    public void canSortNames(@TempDir Path tempDir) throws IOException {
         Path inputFile = tempDir.resolve("test.txt");
-        Files.write(tempDir.resolve("test.txt"), loadResourceAsString(input).getBytes(StandardCharsets.UTF_8));
+        Files.write(tempDir.resolve("test.txt"), loadResourceAsString("/test1/input1.txt").getBytes(StandardCharsets.UTF_8));
         Main.main(new String[]{inputFile.toAbsolutePath().toString()});
 
         List<String> outputLines = Files.readAllLines(tempDir.resolve("test-sorted.txt")).stream().filter(StringUtils::isNotEmpty).collect(Collectors.toList());
-        List<String> expectedOutputLines = Stream.of(loadResourceAsString(output).split("\\n")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+        List<String> expectedOutputLines = Stream.of(loadResourceAsString("/test1/output.txt").split("\\n")).filter(StringUtils::isNotEmpty).collect(Collectors.toList());
         assertEquals(expectedOutputLines, outputLines);
-    }
-
-    @ParameterizedTest
-    @CsvSource(delimiter = ';',
-        value = {
-            "/bad-input/bad-input1.txt; Invalid line at line 1: ,",
-            "/bad-input/bad-input2.txt; Invalid line at line 4: SMITH FREDRICK"
-        })
-    public void complainOnBadInput(String input, String expectedErrorMessage, @TempDir Path tempDir) throws IOException {
-        Exception exception = assertThrows(Exception.class, () -> {
-            Path inputFile = tempDir.resolve("test.txt");
-            Files.write(tempDir.resolve("test.txt"), loadResourceAsString(input).getBytes(StandardCharsets.UTF_8));
-            Main.main(new String[]{inputFile.toAbsolutePath().toString()});
-        });
-        assertThat(exception.getMessage(), CoreMatchers.containsString(expectedErrorMessage));
     }
 
     @Test
@@ -90,8 +69,8 @@ public class MainTest {
         }
     }
 
-    private String loadResourceAsString(String resourceName) {
-        try (InputStream is = getClass().getResourceAsStream(resourceName)) {
+    public static String loadResourceAsString(String resourceName) {
+        try (InputStream is = Main.class.getResourceAsStream(resourceName)) {
             return CharStreams.toString(new InputStreamReader(is, Charsets.UTF_8));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
